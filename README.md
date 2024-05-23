@@ -246,3 +246,63 @@
   - 위에서 살펴본 모던 JS의 문법들을 .ts에서 사용하고,
     - tsconfig.json에서 target을 es6 이상으로 설정할 경우, .js로 컴파일된 코드에서 그대로 확인 가능
     - tsconfig.json에서 target을 es5로 설정한다면, .js로 컴파일된 코드에서 위 모던 JS 문법 대신 예전 문법을 사용하도록 컴파일됨을 확인 가능
+
+## class & interface
+### OOP, class, instance
+- Object-oriented Programming: object를 이용해 코드를 쉽게 이해하고 사용할 수 있도록 하는 것
+  - object는 data와 method를 가짐
+    - object를 이용해 연관 있는 data들을 그룹화  
+    - app의 논리적 요소를 분할: (object가 없다면 더 혼재되어 있을) 코드를 논리에 따른 조각으로 분리 
+  - 각 object가 자신이 가진 data와 method를 이용해 자신의 역할을 수행하도록 함
+- class, instance
+  - object는 app의 로직을 분할해서 관리할 때, data를 저장하고 method를 실행하는 데 사용하는 data structure
+  - class에 object가 어떤 data를 저장하고 어떤 method를 가지는지 사전에 정의해둔 data(object의 blueprint)
+    - class 기반으로 object를 생성했을 경우, 그 object는 해당 class의 instance라 함
+    - object literal을 이용하는 경우와 비교했을 때, class를 이용할 경우 동일한 구조(property, method)에 data만 다른 object를 생성하기에 편리
+
+### class
+#### class 작성 방법
+- defining a field(cf. field 구문은 ES6에서는 지원되지 않음)
+  - ex. name: string; → JS의 object literal처럼 key-value pair가 아니라 key 이름만 정의한 것, let keyword를 붙이지 않음
+  - field 구문을 사용하는 대신 constructor에서 parameter properties를 이용해 property를 바로 선언할 수 있음
+    - 아래 visibility modifier 중 constructor의 parameter에 명시한 access modifier 부분 참고
+- defining a constructor(cf. constructor는 object가 생성될 때 실행되는 특수한 함수, 객체의 초기화 작업 로직, 메서드라 할 수는 없고 utility function 정도로 볼 것)
+  - ex. constructor(name: string) { this.name = name; }
+  - constructor에서 parameter properties를 이용해 property를 바로 선언할 수 있음
+    - 아래 visibility modifier 중 constructor의 parameter에 명시한 access modifier 부분 참고
+- defining a method
+  - class 내부에서 class property 혹은 method를 지칭하려면 this keyword를 사용
+    - this keyword는 해당 class로 생성된 instance를 가리키며, '.'(dot notation)을 이용해 property와 method에 접근
+    - 특히 method의 parameter로 this를 명시하여, this가 무엇을 지칭해야하는지 명확하게 할 수 있음
+  - ex. describe(this: Department) { console.log("Department: " + this.name); }
+    - cf. this.name이 아닌 name으로 작성할 경우 method block 안의 name이라는 local variable을 찾으려 하거나 class 외부의 global variable name을 사용함에 유의
+    - this: Department는 무엇을 지칭해야하는지 명확하게 하기 위한 것
+      - 명시할 경우 type 안전성을 지키기 좋음, 명시하지 않아도 동작하지만 부적절한 사용을 막으려면 명시하는 것이 바람직
+  - cf. prototype
+    - prototype은 JS를 공부할 때 살펴볼만한 주제 - TS는 직접 class를 사용하면 되므로 prototype을 직접 사용할 일이 없음
+    - TypeScript에서 class를 정의하고 ES5 target으로 컴파일 해보면
+      - TypeScript class에 정의된 method는 constructor function의 prototype 안에 정의되는 것을 확인해볼 수 있음
+- 작성된 class 기반으로 instance를 생성하기
+  - new \[class의 identifier\](\[class의 construct를 호출하기 위한 arguments 목록\])
+#### cf. this keyword 사용 시 유의사항
+- JS 및 TS에서 this를 사용할 때는 this가 무엇을 지칭하는지 잘 생각해봐야 함
+- 적절하지 않은 방식으로 this가 사용되도록 놔둘 경우, 각 객체에서 정의되지 않은 property 등에 접근을 시도하여 undefined 같은 결과가 발생
+#### cf. JavaScript의 class는 특별한 function - 참고 [모던 JavaScript 튜토리얼→코어 자바스크립트→클래스](https://ko.javascript.info/class#ref-805)
+- target을 ES5로 컴파일하고 결과를 확인해보면 class 전체가 JS의 constructor function 형태가 됨
+  - constructor function은 예전 JS에서 object의 blueprint를 작성하는 방법 - class가 없었던 예전 JS에도 blueprint 작성 방법은 있었다!
+  - constructor function은 class와 비슷하게 new keyword를 이용해 호출할 수 있는 함수
+  - property도 this를 이용해 적절하게 만들어줌
+- 사실은 class 역시 JS의 특별한 function이라 할 수 있음
+#### visibility modifier, readonly modifier + parameter property
+- [visibility modifier](https://www.typescriptlang.org/docs/handbook/2/classes.html#member-visibility)
+  - cf. TS에서만 사용 가능
+    - 예전 JS 뿐만 아니라 모던 JS에서도 이런 방식으로 access를 제한할 수 없었음
+    - ES2019부터 # prefix를 이용한 방법이 등장 - [Private class fields](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Classes/Private_properties)
+  - field에 명시한 visibility modifier
+    - field identifier 앞에 private을 붙이면 class 외부에서 class의 member(property, method)에 직접 접근하는 것을 막을 수 있음
+    - 명시하지 않을 경우 public modifier가 있는 것과 동일
+  - constructor의 parameter에 명시한 visibility modifier → [parameter properties](https://www.typescriptlang.org/docs/handbook/2/classes.html#parameter-properties)
+    - constructor의 parameter에 modifier가 있는 경우, 해당 modifier를 가진 동일한 이름의 property를 생성해 argument로 받은 값을 property에 저장
+- [readonly modifier](https://www.typescriptlang.org/docs/handbook/2/classes.html#readonly)
+  - cf. TS에서만 사용 가능
+  - readonly가 붙은 property는 초기화된 후 수정할 수 없음
