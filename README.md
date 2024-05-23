@@ -322,7 +322,7 @@
   - 주로 class에서 사용할 utility function, class에 저장할 global constant를 관리하기 위해 사용
   - property와 method를 묶는 namespace처럼 기능함 ex. Math.PI, Math.pow()
 - JS, TS에서 static member에 대해 instance를 통한 접근은 불가능 - 항상 class 이름을 통해 접근해야 함
-  - 당연히 this를 이용한 접근 역시 불가능
+  - 당연히 this를 이용한 접근 역시 불가능 cf. static member끼리는 this를 이용한 접근 가능
 #### inheritance
 - (사용 방법) class 정의 시 → class [상속 class 이름] extends [피상속 class 이름]
   - JS에서도 다중 상속 불가
@@ -330,6 +330,17 @@
     - constructor를 명시하지 않을 경우, 상위 class의 constructor(의 로직) 상속
     - 하위 class에서 constructor를 명시할 경우, constructor는 상속하지 않으며, 명시한 constructor에서 super 사용 필요
     - constructor에서 this를 이용한 property 작업은 super를 호출한 뒤 진행되어야 함(어떤 로직을 먼저 진행할 것인지 생각해보면 당연)
+    - singleton pattern
+      - 한 class의 instance를 1개만 생성 → 평범한 경우라면 static member를 이용할 수도 있지만, static을 사용할 수 없거나, 사용하고 싶지 않을 때 활용
+      - (작성 방법) constructor에 private modifier 적용, instance를 저장할 static private field 선언, instance를 가져올 수 있는 static method 정의
   - override
     - 상위 class의 property와 method를 override 가능
     - 하위 class에서 property에 접근하기 위해서는 property가 private이 아니라 **protected**여야 함
+  - abstract class
+    - 특정 class를 상속할 때, 특정 method를 구현하도록 강제
+      - 상속 class에서 특정 method를 구현할 필요가 있으면서, 다르게 구현해야할 필요성이 있는 경우
+    - class에 method 구조만 정의하고, body는 정의하지 않는 것
+    - abstract class의 instance를 바로 생성할 수는 없음
+    - 작성 방법
+      - class 앞에 abstract keyword 붙임
+      - 구현을 강제하고 싶은 method identifier 앞에 abstract keyword를 붙임 + return type 명시
