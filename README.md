@@ -72,7 +72,7 @@
   - (1) const는 자동으로 literal type으로 추론됨 (2) 함수 parameter에 특정 값을 명시하면 literal type으로 받아들임
   - union type과 함께 사용하여 enum 대용으로 사용 가능
   - 해당 literal type이 아닌 다른 값이 들어오면 컴파일 오류을 발생시킴
-- type alias(타입 별칭)
+- [type alias\(타입 별칭\)](https://www.typescriptlang.org/docs/handbook/declaration-files/by-example.html#reusable-types-type-aliases)
   - 선언 시 형태 예시
     - type Combinable = number | string; → union type에 alias을 붙인 경우
     - type ConversionDescriptor = "as-number" | "as-text"; → literal type의 union type에 alias를 붙인 경우
@@ -261,6 +261,9 @@
     - object literal을 이용하는 경우와 비교했을 때, class를 이용할 경우 동일한 구조(property, method)에 data만 다른 object를 생성하기에 편리
 
 ### class
+- 참고 자료
+  - [MDN 클래스 문서](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
+  - [TS 클래스 공식 문서](https://www.typescriptlang.org/docs/handbook/2/classes.html)
 #### class 작성 방법
 - defining a field(cf. field 구문은 ES6에서는 지원되지 않음)
   - ex. name: string; → JS의 object literal처럼 key-value pair가 아니라 key 이름만 정의한 것, let keyword를 붙이지 않음
@@ -344,3 +347,43 @@
     - 작성 방법
       - class 앞에 abstract keyword 붙임
       - 구현을 강제하고 싶은 method identifier 앞에 abstract keyword를 붙임 + return type 명시
+  - optional property, optional method, optional parameter
+    - 아래 interface에서 관련 부분 참고
+
+### interface
+- TS에서만 지원(JS에서는 지원 x)
+  - .ts를 .js로 컴파일해도 interface는 컴파일되지 않음 → runtime에는 interface를 전혀 확인할 수 없음
+#### interface와 object
+- interface는 object가 어떻게 구성되어야 할지 구조(structure)를 정의
+  - custom type\(type alias\)처럼 사용, 하지만 blueprint로 사용하는 것은 아님
+  - TS의 경우 property를 사용하므로, interface에서 data에 관련된 구조까지 정의할 수 있음
+    - cf. property가 있는 구조는 정의할 수 있지만, property에 값을 할당할 수는 없음
+- object의 구조가 interface의 구조와 일치하는지 type 체크 가능
+  - 어떤 object가 특정 interface라는 type을 갖는 것으로 확인되면, 그 interface에 명시된 구조를 갖도록 compile time 중 강제함
+#### interface와 type alias 비교
+- [type alias](https://www.typescriptlang.org/docs/handbook/declaration-files/by-example.html#reusable-types-type-aliases)로 type의 구조\(cf. [object types](https://www.typescriptlang.org/docs/handbook/2/objects.html)\)를 만들 수도 있고, 재사용도 가능한데  왜 interface를 사용하는가?
+  - [interface SomeType { .. }과 type SomeType = { .. }의 다른 점?](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces)
+  - interface를 사용하면 object의 구조를 정의하고자 하는 의도 자체가 명확함
+  - interface를 사용하여 class가 구현해야 하는 구조를 interface에 정의해둘 수 있음
+    - 상속하는 class에 포함되어야 하는 기능의 구조를 정의할 수 있음
+    - abstract class와 유사하지만 abstract class는 일부에 대한 구현을 강제한다는 느낌, interface는 구조(에 따라 객체가 외부에 드러내야할 기능)를 강제한다는 느낌
+  - cf. 예전에는 TS에서 type alias(custom type)를 지금처럼 유연하게 사용할 수 없기도 했음
+#### interface 관련 구문
+- interface와 modifier
+  - interface 내에 public, private keyword는 사용 불가
+  - readonly keyword는 사용 가능
+    - object가 초기화 된 후에는 해당 property를 수정할 수 없게 함(cf. type alias에서도 같은 방식 사용 가능)
+- extending an interface
+  - 한 interface가 다른 여러 interface들을 extend 가능
+- function type으로서의 interface
+  - TS에서 function도 object로 다뤄지므로 function type을 정의하는 데에 interface 사용 가능
+  - (작성 방법) interface \[identifier\] { (\[type을 명시한 paramerter 목록\]): \[return type\]; }
+    - interface 안에 anonymous function 하나만 정의한 형태로 보면 됨
+    - 이런 경우에는 type alias를 사용하는 것이 나을 수도 있음
+- optional property, optional method, optional parameter - class에서의 optional property, optional method, optional parameter와 같음
+  - (작성 방법) interface 내에 property 혹은 method 선언 시 identifier 뒤에 ?를 붙임 ex. name?: string;
+  - optional property, optional method는 제외한 object 존재 가능
+    - 해당 interface를 구현할 때 optional property, optional method는 제외하고 구현 가능
+    - interface에서는 optional인데, class에서는 optional이 아니도록 할 수도 있음
+  - constructor, method의 parameter도 optional로 할 수 있음
+    - 기본값이 undefined가 됨
