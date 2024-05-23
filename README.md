@@ -298,6 +298,7 @@
   - cf. TS에서만 사용 가능
     - 예전 JS 뿐만 아니라 모던 JS에서도 이런 방식으로 access를 제한할 수 없었음
     - ES2019부터 # prefix를 이용한 방법이 등장 - [Private class fields](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Classes/Private_properties)
+  - (visibility modifier의 종류) public, private, protected(→ inheritance의 override 부분 참고)
   - field에 명시한 visibility modifier
     - field identifier 앞에 private을 붙이면 class 외부에서 class의 member(property, method)에 직접 접근하는 것을 막을 수 있음
     - 명시하지 않을 경우 public modifier가 있는 것과 동일
@@ -306,3 +307,29 @@
 - [readonly modifier](https://www.typescriptlang.org/docs/handbook/2/classes.html#readonly)
   - cf. TS에서만 사용 가능
   - readonly가 붙은 property는 초기화된 후 수정할 수 없음
+#### accessor(getter, setter)
+- [공식 문서](https://www.typescriptlang.org/docs/handbook/2/classes.html#getters--setters)
+- 사용 방법
+  - (getter) get \[사용할 property 이름\]\(\) { \[내부 로직\] }
+  - (setter) set \[사용할 property 이름\]\(\[호출 시 받아올 data\]\) { \[내부 로직\] }
+- field는 private으로 숨기고, 이 field에 필요한 작업을 위해 accessors 사용
+  - 작성 시에는 함수, 메서드처럼 작성되지만, 호출 시에는 property처럼 사용 가능
+  - cf. getter, setter 구현에서 필요한 특별한 logic이 없다면, 그냥 public field를 사용하는 편이 나음
+#### static member(static method, static property)
+- cf. ES6 이후 추가 기능
+- (작성 방법) method, property 선언 시 앞에 static keyword 추가
+- instance를 통해 접근하지 않더라도 사용할 수 있는 property, method
+  - 주로 class에서 사용할 utility function, class에 저장할 global constant를 관리하기 위해 사용
+  - property와 method를 묶는 namespace처럼 기능함 ex. Math.PI, Math.pow()
+- JS, TS에서 static member에 대해 instance를 통한 접근은 불가능 - 항상 class 이름을 통해 접근해야 함
+  - 당연히 this를 이용한 접근 역시 불가능
+#### inheritance
+- (사용 방법) class 정의 시 → class [상속 class 이름] extends [피상속 class 이름]
+  - JS에서도 다중 상속 불가
+  - constructor
+    - constructor를 명시하지 않을 경우, 상위 class의 constructor(의 로직) 상속
+    - 하위 class에서 constructor를 명시할 경우, constructor는 상속하지 않으며, 명시한 constructor에서 super 사용 필요
+    - constructor에서 this를 이용한 property 작업은 super를 호출한 뒤 진행되어야 함(어떤 로직을 먼저 진행할 것인지 생각해보면 당연)
+  - override
+    - 상위 class의 property와 method를 override 가능
+    - 하위 class에서 property에 접근하기 위해서는 property가 private이 아니라 **protected**여야 함
