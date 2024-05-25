@@ -52,5 +52,5 @@ console.log(user2);
 interface AddFunction {
   (a: number, b: number): number;
 }
-let add: AddFunction;
-add = (n1, n2) => n1 + n2;
+let add1: AddFunction;
+add1 = (n1, n2) => n1 + n2;
