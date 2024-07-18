@@ -27,7 +27,12 @@ interface Greetable extends Named {
   greet(phrase: string): void;
 }
 
-class Person implements Greetable {
+/* 
+중복되는 이름 문제를 해결하기 위해 Person interface에 export를 명시
+- export를 명시하지 않을 경우 기본으로 전역 스코프에서 사용 가능
+  - 참고: https://www.typescriptlang.org/ko/docs/handbook/modules.html
+*/
+export class Person implements Greetable {
   age: number = 30;
 
   constructor(public name?: string) {
