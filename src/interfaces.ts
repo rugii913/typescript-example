@@ -14,6 +14,7 @@ user0 = {
     console.log(`${phrase} ${this.name}`);
   },
 };
+console.log(user0); // 사용하지 않는 변수로 인한 TS compiler 오류를 막기위해 넣은 부분
 
 // ---------------------------------------------------------------------
 
@@ -59,3 +60,4 @@ interface AddFunction {
 }
 let add1: AddFunction;
 add1 = (n1, n2) => n1 + n2;
+add1(1, 2); // 사용하지 않는 변수로 인한 TS compiler 오류를 막기위해 넣은 부분
