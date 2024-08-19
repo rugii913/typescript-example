@@ -1,3 +1,21 @@
+// autobind decorator
+function autobind(
+  _target: any,
+  _methodName: string,
+  descriptor: PropertyDescriptor,
+) {
+  const originalMethod = descriptor.value;
+  const adjustedDescriptor: PropertyDescriptor = {
+    configurable: true, // 변경할 수 있게 함
+    get() { // 함수에 access할 때, 원래 함수 대신 이 getter의 return인 함수를 받음
+      const boundFunction = originalMethod.bind(this);
+      return boundFunction;
+    }
+  };
+  return adjustedDescriptor;
+}
+
+// ProjectInput Class
 class ProjectInput {
 
   templateElement: HTMLTemplateElement;
@@ -26,13 +44,14 @@ class ProjectInput {
     this.attach();
   }
 
+  @autobind
   private submitHandler(event: Event) { // 입력 값에 접근 및 검증 // configure() 안에서 addEventListener()의 콜백으로 넘겨짐
     event.preventDefault();
     console.log(this.titleInputElement.value);
   }
 
   private configure() {
-    this.element.addEventListener("submit", this.submitHandler.bind(this)); // JS, TS의 this binding 때문에 bind()를 명시해줘야 함
+    this.element.addEventListener("submit", this.submitHandler); // JS, TS의 this binding 때문에 bind()를 명시해줘야 함 → @autobind를 사용하여 bind() 명시를 숨기도록 변경
   }
 
   private attach() { // 선택 로직과 렌더링 로직을 분리했음
