@@ -1,3 +1,40 @@
+// project state management
+class ProjectState {
+
+  private listeners: any[] = []; // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
+  private projects: any[] = []; // add projects 버튼을 누를 때, 전역 상태 관리 객체의 이 리스트에 프로젝트 항목을 추가하고자 함
+  private static instance: ProjectState; // 싱글톤 static 필드
+
+  private constructor() {} // 생성을 막기 위해 생성자를 private으로 둠
+
+  static getInstance() { // 싱글톤 보장
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjectState();
+    return this.instance;
+  }
+
+  addListener(listenerFunction: Function) {
+    this.listeners.push(listenerFunction);
+  }
+
+  addProject(title: string, description: string, numberOfPeople: number) {
+    const newProject = {
+      id: Math.random().toString(), // 엄밀히 말하면 고유한 값은 아닐 수 있지만, 정밀한 앱은 아니므로 이대로 사용
+      title,
+      description,
+      numberOfPeople,
+    };
+    this.projects.push(newProject);
+    for (const listenerFunction of this.listeners) {
+      listenerFunction(this.projects.slice()); // slice()를 호출해서 projects 배열 원본이 아닌 사본을 arg로 넘김 - 원본은 수정하지 못하도록 함
+    }
+  }
+}
+
+const projectState = ProjectState.getInstance(); // 전역 상태 관리 인스턴스
+
 // validation
 interface Validatable {
   // 검증할 수 있는 객체를 정의
@@ -72,16 +109,33 @@ class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   element: HTMLElement; // HTMLSectionElement type은 존재하지 않음(특별한 기능이 없으므로)
+  assignedProjects: any[];
 
   constructor(private type: "active" | "finished") { // constructor의 parameter에 접근제어자를 추가하여 같은 이름의 property가 클래스에 존재하도록 함
     this.templateElement = document.getElementById("project-list")! as HTMLTemplateElement;
     this.hostElement = document.getElementById("app")! as HTMLDivElement;
+    this.assignedProjects = [];
 
     const importedNode = document.importNode(this.templateElement.content, true);
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
+
+    projectState.addListener((projects: any[]) => {  // 리스너 함수 등록
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
+
     this.attach();
     this.renderContent();
+  }
+
+  private renderProjects() {
+    const listElement = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    for (const projectItem of this.assignedProjects) {
+      const listItem = document.createElement("li");
+      listItem.textContent = projectItem.title;
+      listElement?.appendChild(listItem);
+    }
   }
 
   private renderContent() {
@@ -170,7 +224,7 @@ class ProjectInput {
     const userInput = this.gatherUserInput();
     if (Array.isArray(userInput)) { // JS에는 tuple 개념이 없으므로 tuple 타입인지 확인할 수는 없음
       const [title, description, people] = userInput;
-      console.log(title, description, people);
+      projectState.addProject(title, description, people);
       this.clearInputs();
     }
   }
