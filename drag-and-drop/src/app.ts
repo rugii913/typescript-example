@@ -1,9 +1,29 @@
 /* (cf.) 현재 ADD PROJECT 버튼을 누르면 ACTIVE PROJECTS, FINISHED PROJECTS 모두에 등록되며, 여러 프로젝트를 등록하면 리스트에 프로젝트가 중복되어 나타나는 오류가 있는 상태 */
+// enum ProjectStatus - 사람이 읽어서 이해해야하는 텍스트를 줄이기 위해 enum 사용
+enum ProjectStatus {
+  Active,
+  Finished,
+}
+
+// class Project - 타입 안정성을 위한 타입 추가, 인스턴스화하기 위해서 interface나 custom type이 아닌 class 사용
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus// "active" | "finished", // union type 대신 enum 사용
+  ) {}
+}
+
+// type Listener - 타입 안정성을 위해 타입 추가, 함수인데 특정한 parameter를 받는 함수임을 명시하기 위함
+type Listener = (items: Project[]) => void;
+
 // class ProjectState - project state management
 class ProjectState {
 
-  private listeners: any[] = []; // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
-  private projects: any[] = []; // add projects 버튼을 누를 때, 전역 상태 관리 객체의 이 리스트에 프로젝트 항목을 추가하고자 함
+  private listeners: Listener[] = []; // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
+  private projects: Project[] = []; // add projects 버튼을 누를 때, 전역 상태 관리 객체의 이 리스트에 프로젝트 항목을 추가하고자 함
   private static instance: ProjectState; // 싱글톤 static 필드
 
   private constructor() {} // 생성을 막기 위해 생성자를 private으로 둠
@@ -16,17 +36,18 @@ class ProjectState {
     return this.instance;
   }
 
-  addListener(listenerFunction: Function) {
+  addListener(listenerFunction: Listener) {
     this.listeners.push(listenerFunction);
   }
 
   addProject(title: string, description: string, numberOfPeople: number) {
-    const newProject = {
-      id: Math.random().toString(), // 엄밀히 말하면 고유한 값은 아닐 수 있지만, 정밀한 앱은 아니므로 이대로 사용
+    const newProject = new Project(
+      Math.random().toString(), // 엄밀히 말하면 고유한 값은 아닐 수 있지만, 정밀한 앱은 아니므로 이대로 사용
       title,
       description,
       numberOfPeople,
-    };
+      ProjectStatus.Active, // 새 프로젝트를 만들면 기본값으로 Active 상태가 되도록 함
+    );
     this.projects.push(newProject);
     for (const listenerFunction of this.listeners) {
       listenerFunction(this.projects.slice()); // slice()를 호출해서 projects 배열 원본이 아닌 사본을 arg로 넘김 - 원본은 수정하지 못하도록 함
@@ -110,7 +131,7 @@ class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   element: HTMLElement; // HTMLSectionElement type은 존재하지 않음(특별한 기능이 없으므로)
-  assignedProjects: any[];
+  assignedProjects: Project[];
 
   constructor(private type: "active" | "finished") { // constructor의 parameter에 접근제어자를 추가하여 같은 이름의 property가 클래스에 존재하도록 함
     this.templateElement = document.getElementById("project-list")! as HTMLTemplateElement;
@@ -121,7 +142,7 @@ class ProjectList {
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
 
-    projectState.addListener((projects: any[]) => {  // 리스너 함수 등록
+    projectState.addListener((projects: Project[]) => {  // 리스너 함수 등록
       this.assignedProjects = projects;
       this.renderProjects();
     });
