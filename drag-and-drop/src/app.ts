@@ -1,4 +1,5 @@
-// project state management
+/* (cf.) 현재 ADD PROJECT 버튼을 누르면 ACTIVE PROJECTS, FINISHED PROJECTS 모두에 등록되며, 여러 프로젝트를 등록하면 리스트에 프로젝트가 중복되어 나타나는 오류가 있는 상태 */
+// class ProjectState - project state management
 class ProjectState {
 
   private listeners: any[] = []; // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
@@ -35,7 +36,7 @@ class ProjectState {
 
 const projectState = ProjectState.getInstance(); // 전역 상태 관리 인스턴스
 
-// validation
+// interface Validatable - validation
 interface Validatable {
   // 검증할 수 있는 객체를 정의
   // 객체의 구조를 정의하므로 interface를 사용했지만, 커스텀 타입인 type 혹은 class로 정의하는 것도 가능함
@@ -87,7 +88,7 @@ function validate(validatableInput: Validatable) {
   return isValid;
 }
 
-// autobind decorator
+// decorator autobind
 function autobind(
   _target: any,
   _methodName: string,
@@ -104,7 +105,7 @@ function autobind(
   return adjustedDescriptor;
 }
 
-// ProjectList Class
+// class ProjectList
 class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
@@ -149,7 +150,7 @@ class ProjectList {
   }
 }
 
-// ProjectInput Class
+// class ProjectInput
 class ProjectInput {
 
   templateElement: HTMLTemplateElement;
