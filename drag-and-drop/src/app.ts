@@ -19,6 +19,17 @@ class Project {
 type Listener = (items: Project[]) => void;
 
 // class ProjectState - project state management
+/* 
+- ProjectInput 인스턴스 생성 시 ProjectList 인스턴스 참조를 넘겨 
+  - 프로젝트 추가 버튼 클릭 시 ProjectList 인스턴스 내 addProject() 같은 메서드를 두어 호출하게 할 수도 있겠으나,
+- 전역으로 관리되는 데이터(상태)를 두고 listener를 이용하는 방식을 사용함
+  - ProjectList 인스턴스 생성 시 projectState.addListener()를 호출하여 listener를 등록
+  - listener는 Project[]을 arg로 받아 ProjectList 인스턴스의 renderProjects()를 호출(renderContent()를 호출하는 게 아님)하는 함수
+  - ProjectInput 인스턴스에서 버튼의 handler로 추가한 함수 내부 로직에 projectState.addProject()를 호출하는 부분이 있음
+  - 이 addProject() 내 로직으로
+    - 추가된 Project 인스턴스를 ProjectState의 project: Project[]에 push()하고 난 뒤
+    - 각 ProjectList가 생성되며 등록된 모든 listener를 호출
+*/
 class ProjectState {
 
   private listeners: Listener[] = []; // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
@@ -54,7 +65,7 @@ class ProjectState {
   }
 }
 
-const projectState = ProjectState.getInstance(); // 전역 상태 관리 인스턴스
+const projectState = ProjectState.getInstance(); // 전역 상태 관리 인스턴스를 스크립트 위 쪽에 미리 생성해둠
 
 // interface Validatable - validation
 interface Validatable {
@@ -159,16 +170,16 @@ class ProjectList {
     this.renderContent();
   }
 
+  // ProjectState 싱글톤의 addListener()를 이용해 listener로 등록된 함수에서 이 renderProjects()를 호출
   private renderProjects() {
     const listElement = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
-    listElement.innerHTML = "";
     /* 
-    (cf.) 실제로는 모든 리스트 항목을 삭제하고 다시 렌더링하는 것은 피하고 싶을 수 있음
+    (cf.) 실제로 개발을 할 때는 모든 리스트 항목을 삭제하고 다시 렌더링하는 것은 피하고 싶을 수 있음
     - 새로운 프로젝트를 추가할 때마다 모든 프로젝트를 전부 다시 렌더링해야 하기 때문
     - 그런데 이미 렌더링된 것들을 확인하고 렌더링할 것이 무엇인지 확인해서 렌더링을 피하는 방법을 실제 DOM 요소에 대해 작업하는 방식은 성능이 좋지 않음
       - 일단은 이대로 놔두고 추후 개선 필요
     */
-    // 
+    listElement.innerHTML = "";
 
     for (const projectItem of this.assignedProjects) {
       const listItem = document.createElement("li");
@@ -177,6 +188,7 @@ class ProjectList {
     }
   }
 
+  // renderContent와 사용하는 곳이 다름 - constructor에서 처음 assignedProjects를 렌더링하기 위한 용도
   private renderContent() {
     const listId = `${this.type}-projects-list`;
     this.element.querySelector("ul")!.id = listId;
