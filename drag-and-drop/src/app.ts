@@ -1,4 +1,3 @@
-/* (cf.) 현재 ADD PROJECT 버튼을 누르면 ACTIVE PROJECTS, FINISHED PROJECTS 모두에 등록되며, 여러 프로젝트를 등록하면 리스트에 프로젝트가 중복되어 나타나는 오류가 있는 상태 */
 // enum ProjectStatus - 사람이 읽어서 이해해야하는 텍스트를 줄이기 위해 enum 사용
 enum ProjectStatus {
   Active,
@@ -134,6 +133,7 @@ class ProjectList {
   assignedProjects: Project[];
 
   constructor(private type: "active" | "finished") { // constructor의 parameter에 접근제어자를 추가하여 같은 이름의 property가 클래스에 존재하도록 함
+    // (cf.) 위 constructor의 parameter의 type으로는 ProjectStatus enum을 사용하지 않았음 → 문자열 리터럴을 그대로 사용하기 위함
     this.templateElement = document.getElementById("project-list")! as HTMLTemplateElement;
     this.hostElement = document.getElementById("app")! as HTMLDivElement;
     this.assignedProjects = [];
@@ -142,8 +142,16 @@ class ProjectList {
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
 
-    projectState.addListener((projects: Project[]) => {  // 리스너 함수 등록
-      this.assignedProjects = projects;
+    projectState.addListener((projects: Project[]) => { // listener 함수 등록
+      // listener 함수 내에서 프로젝트를 저장하고 렌더링하기 전에 active/finished로 필터링
+      const relevantProjects = projects.filter(project => {
+        if (this.type === "active") {
+          return project.status === ProjectStatus.Active;
+        }
+        return project.status === ProjectStatus.Finished;
+      });
+
+      this.assignedProjects = relevantProjects;
       this.renderProjects();
     });
 
@@ -153,6 +161,15 @@ class ProjectList {
 
   private renderProjects() {
     const listElement = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    listElement.innerHTML = "";
+    /* 
+    (cf.) 실제로는 모든 리스트 항목을 삭제하고 다시 렌더링하는 것은 피하고 싶을 수 있음
+    - 새로운 프로젝트를 추가할 때마다 모든 프로젝트를 전부 다시 렌더링해야 하기 때문
+    - 그런데 이미 렌더링된 것들을 확인하고 렌더링할 것이 무엇인지 확인해서 렌더링을 피하는 방법을 실제 DOM 요소에 대해 작업하는 방식은 성능이 좋지 않음
+      - 일단은 이대로 놔두고 추후 개선 필요
+    */
+    // 
+
     for (const projectItem of this.assignedProjects) {
       const listItem = document.createElement("li");
       listItem.textContent = projectItem.title;
