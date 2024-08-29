@@ -136,6 +136,39 @@ function autobind(
   return adjustedDescriptor;
 }
 
+// class Component - 렌더링 역할 클래스들의 base class 역할
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+  templateElement: HTMLTemplateElement;
+  hostElement: T;
+  element: U;
+
+  constructor(
+    templateId: string,
+    hostElementId: string,
+    insertAtStart: boolean,
+    newElementId?: string, // (cf.) newElementId?로 파라미터 이름 뒤에 ?를 붙이는 대신 type을 string | undefined로 두는 것도 가능
+    // templateId는 렌더링할 template의 id, hostElementId는 렌더링할 위치인 hostElement의 id, newElementId는 새로 삽입할 element의 id
+  ) {
+    this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
+    this.hostElement = document.getElementById(hostElementId)! as T;
+
+    const importedNode = document.importNode(this.templateElement.content, true);
+    this.element = importedNode.firstElementChild as U;
+    if (newElementId) { // newElementId는 optional이므로 체크를 해줘야 함
+      this.element.id = newElementId;
+    }
+
+    this.attach(insertAtStart);
+  }
+
+  private attach(insertAtBeginning: boolean) {
+    this.hostElement.insertAdjacentElement(insertAtBeginning ? "afterbegin" : "beforeend", this.element);
+  }
+
+  abstract configure(): void;
+  abstract renderContent(): void;
+}
+
 // class ProjectList
 class ProjectList {
   templateElement: HTMLTemplateElement;
