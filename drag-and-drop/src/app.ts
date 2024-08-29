@@ -16,7 +16,16 @@ class Project {
 }
 
 // type Listener - 타입 안정성을 위해 타입 추가, 함수인데 특정한 parameter를 받는 함수임을 명시하기 위함
-type Listener = (items: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
+
+// class State - 다양한 상태를 관리할 때를 대비한 일반화된 상태 관리 base class
+class State<T> {
+  protected listeners: Listener<T>[] = [];
+
+  addListener(listenerFunction: Listener<T>) {
+    this.listeners.push(listenerFunction);
+  }
+}
 
 // class ProjectState - project state management
 /* 
@@ -30,13 +39,13 @@ type Listener = (items: Project[]) => void;
     - 추가된 Project 인스턴스를 ProjectState의 project: Project[]에 push()하고 난 뒤
     - 각 ProjectList가 생성되며 등록된 모든 listener를 호출
 */
-class ProjectState {
-
-  private listeners: Listener[] = []; // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
+class ProjectState extends State<Project> {
   private projects: Project[] = []; // add projects 버튼을 누를 때, 전역 상태 관리 객체의 이 리스트에 프로젝트 항목을 추가하고자 함
   private static instance: ProjectState; // 싱글톤 static 필드
 
-  private constructor() {} // 생성을 막기 위해 생성자를 private으로 둠
+  private constructor() { // 생성을 막기 위해 생성자를 private으로 둠
+    super();
+  }
 
   static getInstance() { // 싱글톤 보장
     if (this.instance) {
@@ -44,10 +53,6 @@ class ProjectState {
     }
     this.instance = new ProjectState();
     return this.instance;
-  }
-
-  addListener(listenerFunction: Listener) {
-    this.listeners.push(listenerFunction);
   }
 
   addProject(title: string, description: string, numberOfPeople: number) {
@@ -59,6 +64,8 @@ class ProjectState {
       ProjectStatus.Active, // 새 프로젝트를 만들면 기본값으로 Active 상태가 되도록 함
     );
     this.projects.push(newProject);
+
+    // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
     for (const listenerFunction of this.listeners) {
       listenerFunction(this.projects.slice()); // slice()를 호출해서 projects 배열 원본이 아닌 사본을 arg로 넘김 - 원본은 수정하지 못하도록 함
     }
@@ -213,7 +220,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     this.element.querySelector("ul")!.id = listId;
     this.element.querySelector("h2")!.textContent = this.type.toUpperCase() + " PROJECTS";
   }
-  
+
   // ProjectState 싱글톤의 addListener()를 이용해 listener로 등록된 함수에서 이 renderProjects()를 호출
   private renderProjects() {
     const listElement = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
