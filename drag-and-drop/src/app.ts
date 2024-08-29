@@ -178,8 +178,8 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     this.hostElement.insertAdjacentElement(insertAtBeginning ? "afterbegin" : "beforeend", this.element);
   }
 
-  abstract configure(): void;
-  abstract renderContent(): void;
+  protected abstract configure(): void;
+  protected abstract renderContent(): void;
 }
 
 // class ProjectList
@@ -199,7 +199,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     this.renderContent();
   }
 
-  configure() { // 전역 상태에 listener를 추가하는 부분을 여기서 처리
+  protected configure() { // 전역 상태에 listener를 추가하는 부분을 여기서 처리
     projectState.addListener((projects: Project[]) => { // listener 함수 등록
       // listener 함수 내에서 프로젝트를 저장하고 렌더링하기 전에 active/finished로 필터링
       const relevantProjects = projects.filter(project => {
@@ -215,7 +215,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   }
 
   // renderContent와 사용하는 곳이 다름 - constructor에서 처음 assignedProjects를 렌더링하기 위한 용도
-  renderContent() { // 원래는 private으로 두었으나, 상속해서 사용하기 위해 public으로 둠
+  protected renderContent() { // 원래는 private으로 두었으나, 상속해서 사용하기 위해 public으로 둠 → protected로 변경하여 함부로 사용하지 못하도록 변경
     const listId = `${this.type}-projects-list`;
     this.element.querySelector("ul")!.id = listId;
     this.element.querySelector("h2")!.textContent = this.type.toUpperCase() + " PROJECTS";
