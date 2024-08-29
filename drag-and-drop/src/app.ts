@@ -214,7 +214,8 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     });
   }
 
-  // renderContent와 사용하는 곳이 다름 - constructor에서 처음 assignedProjects를 렌더링하기 위한 용도
+  // renderContent와 사용하는 곳이 다름
+  // - constructor에서 처음 assignedProjects를 렌더링할 때, ul 요소에 id 부여 + 렌더링할 제목 넣음
   protected renderContent() { // 원래는 private으로 두었으나, 상속해서 사용하기 위해 public으로 둠 → protected로 변경하여 함부로 사용하지 못하도록 변경
     const listId = `${this.type}-projects-list`;
     this.element.querySelector("ul")!.id = listId;
@@ -222,6 +223,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   }
 
   // ProjectState 싱글톤의 addListener()를 이용해 listener로 등록된 함수에서 이 renderProjects()를 호출
+  // - ProjectInput에 의해 전역으로 관리되는 Project 인스턴스가 새로 추가될 때, ProjectList도 새로 렌더링해주기 위함
   private renderProjects() {
     const listElement = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
     /* 
