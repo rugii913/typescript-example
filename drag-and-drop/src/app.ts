@@ -182,6 +182,27 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   protected abstract renderContent(): void;
 }
 
+// class ProjectItem
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  private project: Project;
+
+  constructor(hostId: string, project: Project) {
+    super("single-project", hostId, false, project.id);
+    this.project = project;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  protected configure(): void {}
+
+  protected renderContent(): void {
+    this.element.querySelector("h2")!.textContent = this.project.title;
+    this.element.querySelector("h3")!.textContent = this.project.people.toString();
+    this.element.querySelector("p")!.textContent = this.project.description;
+  }
+}
+
 // class ProjectList
 class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   // base class를 상속하면서 주석 처리
@@ -235,9 +256,8 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     listElement.innerHTML = "";
 
     for (const projectItem of this.assignedProjects) {
-      const listItem = document.createElement("li");
-      listItem.textContent = projectItem.title;
-      listElement?.appendChild(listItem);
+      /* (cf.) 단순하게 this.element.id를 넘길 경우, this.element는 <section> 요소이므로 원하는 대로 렌더링되지 않음에 유의 */
+      new ProjectItem(this.element.querySelector("ul")!.id, projectItem);
     }
   }
 }
