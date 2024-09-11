@@ -185,6 +185,16 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 // class ProjectItem
 class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
   private project: Project;
+  
+  // getter는 보통 필드 아래 둠 // getter는 함수와 비슷하지만, ()를 붙이지 않음, property처럼 사용
+  // (cf.) getter는 TS 고유 문법이 아니라, JS에서도 사용 가능
+  get people() { 
+    if (this.project.people === 1) {
+      return "1 person";
+    } else {
+      return `${this.project.people} people`
+    }
+  }
 
   constructor(hostId: string, project: Project) {
     super("single-project", hostId, false, project.id);
@@ -198,7 +208,7 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
 
   protected renderContent(): void {
     this.element.querySelector("h2")!.textContent = this.project.title;
-    this.element.querySelector("h3")!.textContent = this.project.people.toString();
+    this.element.querySelector("h3")!.textContent = this.people + " assigned";
     this.element.querySelector("p")!.textContent = this.project.description;
   }
 }
