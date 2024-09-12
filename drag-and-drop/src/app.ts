@@ -79,8 +79,19 @@ class ProjectState extends State<Project> {
       ProjectStatus.Active, // 새 프로젝트를 만들면 기본값으로 Active 상태가 되도록 함
     );
     this.projects.push(newProject);
+    this.updateListeners();
+  }
 
-    // 새 프로젝트를 추가(addProject() 호출 시) 할 때 모든 listener 함수가 호출되도록 함
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find(project => project.id === projectId);
+    if (project && project.status !== newStatus) { // 기존 status와 같은 경우 불필요한 재렌더링 방지
+      project.status = newStatus;
+      this.updateListeners();
+    }
+  }
+
+  private updateListeners() {
+    // 새 프로젝트 추가, 프로젝트 이동 시 모든 listener 함수가 호출되도록 함
     for (const listenerFunction of this.listeners) {
       listenerFunction(this.projects.slice()); // slice()를 호출해서 projects 배열 원본이 아닌 사본을 arg로 넘김 - 원본은 수정하지 못하도록 함
     }
@@ -273,9 +284,13 @@ class ProjectList
     }
   }
 
+  @autobind
   dropHandler(event: DragEvent): void {
-    console.log(event);
-    console.log(event.dataTransfer!.getData("text/plain"));
+    const projectId = event.dataTransfer!.getData("text/plain");
+    projectState.moveProject(
+      projectId,
+      this.type === "active" ? ProjectStatus.Active : ProjectStatus.Finished
+    );
   }
 
   @autobind
