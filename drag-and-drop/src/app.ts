@@ -198,7 +198,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 }
 
 // class ProjectItem
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements Draggable {
   private project: Project;
   
   // getter는 보통 필드 아래 둠 // getter는 함수와 비슷하지만, ()를 붙이지 않음, property처럼 사용
@@ -219,7 +219,19 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
-  protected configure(): void {}
+  @autobind // 항상 event listener에서는 this를 유의
+  dragStartHandler(event: DragEvent) {
+    console.log(event);
+  }
+
+  dragEndHandler(_event: DragEvent) {
+    console.log("DragEnd"); // 일단은 event가 트리거됐는지만 확인
+  }
+
+  protected configure(): void {
+    this.element.addEventListener("dragstart", this.dragStartHandler); 
+    this.element.addEventListener("dragend", this.dragEndHandler); 
+  }
 
   protected renderContent(): void {
     this.element.querySelector("h2")!.textContent = this.project.title;
