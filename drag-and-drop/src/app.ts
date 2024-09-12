@@ -241,7 +241,7 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
 }
 
 // class ProjectList
-class ProjectList extends Component<HTMLDivElement, HTMLElement> {
+class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget {
   // base class를 상속하면서 주석 처리
   // templateElement: HTMLTemplateElement;
   // hostElement: HTMLDivElement;
@@ -257,7 +257,28 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     this.renderContent();
   }
 
-  protected configure() { // 전역 상태에 listener를 추가하는 부분을 여기서 처리
+  @autobind
+  dragOverHandler(_event: DragEvent): void {
+    const listElement = this.element.querySelector("ul")!;
+    listElement.classList.add("droppable");
+  }
+
+  dropHandler(_event: DragEvent): void {
+      
+  }
+
+  @autobind
+  dragLeaveHandler(_event: DragEvent): void {
+    const listElement = this.element.querySelector("ul")!;
+    listElement.classList.remove("droppable");
+  }
+
+  protected configure() {
+    this.element.addEventListener("dragover", this.dragOverHandler);
+    this.element.addEventListener("drop", this.dropHandler);
+    this.element.addEventListener("dragleave", this.dragLeaveHandler);
+
+    // 전역 상태에 listener를 추가하는 부분을 여기서 처리
     projectState.addListener((projects: Project[]) => { // listener 함수 등록
       // listener 함수 내에서 프로젝트를 저장하고 렌더링하기 전에 active/finished로 필터링
       const relevantProjects = projects.filter(project => {
