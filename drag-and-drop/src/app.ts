@@ -221,7 +221,10 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
 
   @autobind // 항상 event listener에서는 this를 유의
   dragStartHandler(event: DragEvent) {
-    console.log(event);
+    // (cf.) 모든 drag 관련 event가 DataTransfer 타입 객체를 가진 event 객체를 제공하지는 않으므로 null일 수 있음
+    // - 하지만 여기 drag를 시작하는 event는 DataTransfer 타입 객체가 있을 것이 명확함
+    event.dataTransfer!.setData("text/plain", this.project.id); // format은 데이터의 형식을 나타내는 식별자(자세한 내용은 공식 문서 참고), data는 데이터 자체(여기서는 project의 id만 전달하면 충분)
+    event.dataTransfer!.effectAllowed = "move"; // 커서의 모양을 제어하는 역할
   }
 
   dragEndHandler(_event: DragEvent) {
@@ -241,14 +244,18 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
 }
 
 // class ProjectList
-class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget {
+class ProjectList
+  extends Component<HTMLDivElement, HTMLElement>
+  implements DragTarget
+{
   // base class를 상속하면서 주석 처리
   // templateElement: HTMLTemplateElement;
   // hostElement: HTMLDivElement;
   // element: HTMLElement; // HTMLSectionElement type은 존재하지 않음(특별한 기능이 없으므로)
   assignedProjects: Project[];
 
-  constructor(private type: "active" | "finished") { // constructor의 parameter에 접근제어자를 추가하여 같은 이름의 property가 클래스에 존재하도록 함
+  constructor(private type: "active" | "finished") {
+    // constructor의 parameter에 접근제어자를 추가하여 같은 이름의 property가 클래스에 존재하도록 함
     // (cf.) 위 constructor의 parameter의 type으로는 ProjectStatus enum을 사용하지 않았음 → 문자열 리터럴을 그대로 사용하기 위함
     super("project-list", "app", false, `${type}-projects`); // base class의 생성자를 호출하여 base class의 생성자 로직을 사용
     this.assignedProjects = [];
@@ -258,13 +265,17 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
   }
 
   @autobind
-  dragOverHandler(_event: DragEvent): void {
-    const listElement = this.element.querySelector("ul")!;
-    listElement.classList.add("droppable");
+  dragOverHandler(event: DragEvent): void {
+    if (event.dataTransfer && event.dataTransfer.types[0] === "text/plain") {
+      event.preventDefault(); // JS drag and drop 이벤트의 기본값을 drop을 허용하지 않는 것 - 이 기본 동작을 막아 drop이 가능하도록 함
+      const listElement = this.element.querySelector("ul")!;
+      listElement.classList.add("droppable");
+    }
   }
 
-  dropHandler(_event: DragEvent): void {
-      
+  dropHandler(event: DragEvent): void {
+    console.log(event);
+    console.log(event.dataTransfer!.getData("text/plain"));
   }
 
   @autobind
