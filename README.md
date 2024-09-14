@@ -517,3 +517,38 @@
 - NestJS 프레임워크
 
 ### TODO - decorator 관련 메모 추후 보완 필요
+
+## drag & drop 프로젝트 예제
+- <template>과 TS 클래스를 이용한 렌더링
+  - 사용자 입력 관련 렌더링 클래스
+  - 리스트 렌더링 클래스
+  - 리스트 내 프로젝트 단건 렌더링 클래스
+- decorator 활용
+- DOM의 input 제어
+- interface를 활용한 검증
+- 프로젝트를 나타내는 데이터 구조를 작성하고, 리스트로 렌더링하도록 전달
+- 프로젝트 전역 상태 관리 인스턴스를 이용한 상태 관리
+  - 다른 객체에서도 쉽게 사용할 수 있도록 전역으로 관리
+  - 프로젝트 전체에서 하나만 존재하도록 싱글톤 패턴 사용
+- type 안정성을 활용하기 위해 Project 타입(클래스), Listener 타입(custom type) 추가
+- enum 사용
+  - (cf.) TS에서 enum을 사용하는 것에 대해서 반대 의견이 있음
+- DOM에 렌더링하는 class들이 공통으로 갖는 모든 기능을 관리할 base class와 이를 상속한 클래스 사용
+  - generic을 사용하여 유연하게 상속할 수 있도록 함
+  - base class는 abstract class로 둠 -직접 인스턴스화할 수 없도록 함
+  - configure(), renderContent는 abstract method로 두어 재정의를 강제함
+    - (cf.) TS에서 private abstract method는 불가능
+- getter 사용(JS 문법)
+  - [모던 JavaScript 튜토리얼 - 프로퍼티 getter와 setter](https://ko.javascript.info/property-accessors)
+    - data property vs. accessor property
+    - getter, setter는 accessor property에 해당
+- 드래그 앤 드롭 이벤트로 화면만 조정하는 것을 넘어서 상태를 조정함
+  - interface를 활용하여 드래그할 element(Draggable)와 드래그할 지점(DragTarget)을 구현하도록 함
+    - 드래그할 element에는 HTML에서도 draggable="true"를 붙여줘야함에 유의
+  - 항상 event listener에서는 this를 조심
+  - drag event의 dataTransfer 프로퍼티를 활용
+    - drag event에 데이터를 첨부하고, drop 시에 해당 데이터를 추출할 수 있음
+  - drop이 발생할 때 Project 객체의 상태가 변경되도록 함
+    - 전역 상태 관리 객체인 ProjectState에 대해서 작업
+  - (cf.) 드래그 앤 드롭 관련 참고
+    - [MDN - HTML Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API)

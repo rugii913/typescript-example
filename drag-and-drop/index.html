@@ -24,12 +24,17 @@
       <div class="form-control">
         <label for="people">People</label>
         <input type="number" id="people" step="1" min="0" max="10" />
+        <!-- (cf.) TS 로직에서는 min 0, max 5로 두어 로직을 확인함 → 이 범위를 벗어나는 값은 TS 로직 전에 HTML 자체에서 막으려고 시도함 -->
       </div>
       <button type="submit">ADD PROJECT</button>
     </form>
   </template>
   <template id="single-project">
-    <li></li>
+    <li draggable="true">
+      <h2></h2>
+      <h3></h3>
+      <p></p>
+    </li>
   </template>
   <template id="project-list">
     <section class="projects">
