@@ -1,5 +1,5 @@
 // class Component - 렌더링 역할 클래스들의 base class 역할
-export abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+export default abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   templateElement: HTMLTemplateElement;
   hostElement: T;
   element: U;
