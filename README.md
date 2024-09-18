@@ -552,3 +552,74 @@
     - 전역 상태 관리 객체인 ProjectState에 대해서 작업
   - (cf.) 드래그 앤 드롭 관련 참고
     - [MDN - HTML Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API)
+
+## 모듈 및 네임스페이스
+- modular code를 작성해서 코드를 여러 개의 파일로 분할하여 관리
+  - 각 파일은 브라우저 혹은 서드파티 빌드 도구를 이용해 TS로 연결됨
+- 여러 파일로 코드를 구성할 때의 방법들
+  - (방법 1) 여러 개의 .ts 파일 작성
+    - 소스 디렉토리의 모든 코드 파일을 컴파일하고, 컴파일된 각각의 .js 파일을 HTML로 가져옴
+    - (단점) 규모가 큰 프로젝트에서는 매우 불리함
+      - 모든 import를 수동으로 관리해야함 → 관리, 유지보수 시 오류 발생 가능성 높음
+      - 특정 TS 기능 타입을 사용할 때 타입 지원도 불가능
+        - a 파일에서 정의한 타입을 b 파일에서 사용해도 TS가 이 연결에 대해 알 수 없음
+  - (방법 2) namespace & file bundling
+    - namespace syntax 활용
+      - 특수한 코드를 추가
+      - namespace 아래에 코드를 그룹으로 묶고 다른 파일에서 namespace를 import
+    - per-file or bundled compilation
+      - 여러 파일을 하나의 파일로 묶기
+  - (방법 3) ES6의 import/export (ES6 모듈)
+    - TS와는 별개로 모던 JS에서 제공하는 솔루션 → 대규모 프로젝트에서는 JS에서도 같은 문제를 겪기 때문
+    - ES6의 import/export syntax 사용
+      - 여러 파일 사이의 종속성을 명시
+      - 모던 브라우저가 이를 이해하고 종속된 파일을 자동으로 받아서 실행
+    - 기본적으로 per-file compilation이지만 HTML에서 \< script \> 를 이용해 적어도 하나의 파일은 가져와야 함
+      - 종속성을 갖는 파일을 개별로 받아오기 때문에 HTTP 요청이 늘어난다는 단점
+    - HTTP 요청을 줄이기 위해 Webpack 등 도구를 이용해 bundling 하는 경우도 많음
+
+### namespace & file bundling
+- namespace는 JS의 기능이 아닌 TS 기능
+  - 대응되는 기능이 없으므로 JS로 컴파일 되지 않음
+  - namespace를 구성하고 property가 보존되는 객체로 컴파일
+- export와 import
+  - export 키워드를 이용해 다른 파일에서도 사용할 수 있게 함
+  - 다른 파일에서 import는 다음과 같은 형식의 특수 구문을 이용
+    - /// < reference path="사용할 ts 파일명" />
+  - 하지만 단순히 export와 import만으로는 불가능
+    - 참조하려는 코드들이 동일한 namespace 안에 있어야 함
+- file bundling
+  - 코드들을 동일한 namespace에 두고, export와 import를 위한 특수 구문을 적절히 사용했다고 하더라도 여전히 문제는 남아있음
+    - 위 과정은 type을 어디서 찾을지 TSC에 알려준 것일 뿐임
+    - JS로 컴파일이 완료되면 연결이 끊어짐
+  - tsconfig.json 파일에서 outFile을 명시
+    - 참조한 내용을 컴파일할 때 여러 개의 JS 파일이 아니라 단일 JS 파일로 컴파일하도록 함
+    - 이 때 여러 작업 파일을 하나로 번들링 처리하기 위해
+      - tsconfig.json의 module을 commonjs가 아닌 amd로 설정
+      - 이 부분은 역사적인 이유 혹은 개발 과정으로 인해 생긴 이슈, 자세한 내용은 다음의 강의 참고 자료 확인
+        - [Medium - CommonJS vs AMD vs RequireJS vs ES6 Modules](https://medium.com/computed-comparisons/commonjs-vs-amd-vs-requirejs-vs-es6-modules-2e814b114a0b)
+  - **TS 컴파일 안 되는 문제 관련**
+    - 이 때 tsc 명령어로 TS 컴파일이 안 되는 문제 발생함, 오류 메시지는 아래와 같음
+      - Cannot find module 'undici-types'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+    - 이를 해결하기 위해 다음과 같은 글들을 참고했으나 해결되지 않음
+      - https://www.inflearn.com/community/questions/1073374/tsc-%EB%AA%85%EB%A0%B9%EC%96%B4%EB%A5%BC-%EC%8B%A4%ED%96%89%ED%95%98%EB%A9%B4-cannot-find-module-undici-type-%EC%9D%B4%EB%9D%BC%EB%8A%94-%EC%98%A4%EB%A5%98%EA%B0%80-%EB%9C%B9%EB%8B%88%EB%8B%A4?srsltid=AfmBOorQp4HlpT4KEASJBpY7NfQ0xjKq0aVwuWMG4b2sKWAPmYDja58g
+      - https://www.inflearn.com/community/questions/1053604/%EC%84%A4%EC%B9%98-%EC%98%A4%EB%A5%98-%ED%95%B4%EA%B2%B0%EC%B1%85%EC%9D%84-%EB%AA%A8%EB%A5%B4%EA%B2%A0%EC%8A%B5%EB%8B%88%EB%8B%A4-%EC%84%A4%EC%B9%98%EA%B4%80%EB%A0%A8-undici-types?focusComment=292567
+      - https://github.com/pop-os/shell/issues/1664#issue-1954078073
+      - https://velog.io/@jihwan1211/VSCode-Typescript-버전-변경하기
+    - 문제의 원인으로 @types/node, undici 등을 의심했고 global 라이브러리를 변경해보았으나 해결되지 않았음
+    - 결론적으로 오류 메시지에서 보여주는 해결책과 유사하게 tsconfig.json에서 다음을 추가하여 해결함
+      - "moduleResolution": "node"
+      - 값을 "nodenext"로 주어도 동작하는지, 이것이 무엇을 의미하는지에 대해서는 확인이 필요함
+    - 문제가 발생하는 정확한 원인은 확인하지 못했음
+      - undici 라이브러리의 문제인지?
+      - 새로 출시된 typescript 5.7.0과 VSCode의 문제인지?
+    - 이 외에도 node 버전과 npm 버전을 최신화하였는데, 이것이 문제 해결에 영향을 끼쳤는지에 대해서는 조사하지 않았음
+      - node 버전은 20에서 22로 변경, npm은 10.8.2 사용
+- **TS의 namespace를 이용한 방법의 단점**
+  - 각 파일의 종속성을 모두 수동으로 추가해줘야 함
+    - 즉 해당 파일에서 필요로 하는 다른 파일을 직접 reference로 명시해야 함
+  - 그런데 문제는 reference를 명시하지 않아도 컴파일되는 경우가 있다는 것
+    - 예를 들어 B 파일에서 A 파일을 reference로 가져오고 있고, C 파일에서 A 파일을 필요로 하지만 reference로 명시하지 않은 경우
+    - 하나의 파일로 번들링하게 되면 문제 없이 컴파일되며 잘 동작함
+  - 동작하더라도 왜 동작하는지, 동작하지 않으면 왜 동작하지 않는지 혼란스러운 상황이 발생할 수 있음
+
