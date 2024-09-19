@@ -566,16 +566,19 @@
   - (방법 2) namespace & file bundling
     - namespace syntax 활용
       - 특수한 코드를 추가
-      - namespace 아래에 코드를 그룹으로 묶고 다른 파일에서 namespace를 import
+      - namespace 아래에 코드를 그룹으로 묶고 종속성 있는 다른 파일 import
     - per-file or bundled compilation
-      - 여러 파일을 하나의 파일로 묶기
+      - tsconfig.json 설정을 통해 여러 파일을 하나의 파일로 bundling 하기 편리
+    - ES6 모듈을 사용한 경우와 비교했을 때
+      - 타입 안정성이 떨어지고
+      - 파일 간 종속성을 명확하게 처리할 수 없음
   - (방법 3) ES6의 import/export (ES6 모듈)
     - TS와는 별개로 모던 JS에서 제공하는 솔루션 → 대규모 프로젝트에서는 JS에서도 같은 문제를 겪기 때문
     - ES6의 import/export syntax 사용
       - 여러 파일 사이의 종속성을 명시
       - 모던 브라우저가 이를 이해하고 종속된 파일을 자동으로 받아서 실행
-    - 기본적으로 per-file compilation이지만 HTML에서 \< script \> 를 이용해 적어도 하나의 파일은 가져와야 함
-      - 종속성을 갖는 파일을 개별로 받아오기 때문에 HTTP 요청이 늘어난다는 단점
+    - 기본적으로 per-file compilation이며, HTML에서 \< script \> 를 이용해 적어도 하나의 파일은 가져와야 함
+      - 종속성을 갖는 파일을 개별 요청으로 받아오기 때문에 HTTP 요청이 늘어난다는 단점
     - HTTP 요청을 줄이기 위해 Webpack 등 도구를 이용해 bundling 하는 경우도 많음
 
 ### namespace & file bundling
