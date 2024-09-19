@@ -623,3 +623,60 @@
     - 하나의 파일로 번들링하게 되면 문제 없이 컴파일되며 잘 동작함
   - 동작하더라도 왜 동작하는지, 동작하지 않으면 왜 동작하지 않는지 혼란스러운 상황이 발생할 수 있음
 
+### ES6 모듈을 활용한 import, export
+- 구문
+  - 가져올 대상에서 export 명시(TS namespace 관련 구문이 아니라 ES6 모듈 관련 구문, 예약어는 같음)
+  - import { 가져올 대상 } from "파일 경로(.js로 명시)"
+  - 이 때 tsconfig.json에서 module이 AMD 등 다른 것으로 되어있다면 모듈을 도입한 ECMAScript 버전인 es2015(혹은 es6)로 바꿔줘야 함
+    - TSC에게 import를 바꾸지 말고 그대로 두도록 함
+  - 그리고 outFile이 명시되어 있다면 삭제하거나 주석 처리
+    - 하나의 파일로 번들링되지 않도록 한 것
+    - 번들링되면 순수 JS에서는 이해할 수 없는 구문이 됨
+  - JS 파일을 가져오는 HTML 파일에서는 모듈임을 명시(type="module")
+    - 모던 브라우저는 ES6 모듈을 지원하지만, 모듈을 사용한다고 명시해줘야 함
+    - 명시하지 않는 경우 다음 오류 발생
+      - Uncaught SyntaxError: Cannot use import statement outside a module
+  - (cf.) Webpack과 같은 빌드 도구를 사용한다면, import 시 .js 확장자를 생략할 수 있지만, 
+    - 브라우저에 의지해서 파일을 import 할 때는 .js 확장자를 명시해줘야 함
+- 장점
+  - 파일마다 필요한 것을 명시하기에 편리
+  - 명시가 잘못된 경우 tsc에서 경고를 보냄
+  - 타입 안정성도 강화됨
+  - 되도록 namespace보다는 ES 모듈을 사용하고
+    - 구형 브라우저를 사용할 수밖에 없는 경우, ES 모듈이나 번들러 등을 사용할 수 없는 경우에만 TS의 namespace를 사용할 것을 권장
+- 단점
+  - 개발자 도구 네트워크 탭을 보면 요청이 많음을 확인 가능
+    - HTML \< script \>로 불러온 첫 JS 파일을 가져오면서 import가 명시된 모든 파일들을 가져오는 것
+- 추가로 알아두면 좋을 import, export 관련 구문
+  - import bundling
+    - import { \[가져올 대상\] } ... 대신 import * as \[사용할 이름\] from "\[가져올 파일\]"; 구문을 사용
+    - 사용할 때는 \[사용할 이름\].\[가져올 대상\] 방식으로 사용
+    - 이렇게 import 대상을 그룹화할 수 있음
+      - 이름 충돌을 방지할 때도 유용할 수 있음
+  - alias
+    - 위 import bundling에서 사용한 as는 가져올 대상에게도 직접 사용할 수 있음
+    - (ex.) import { autobind as Autobind } from ...
+    - 이름 충돌을 방지할 수 있음
+  - default export(↔ named export)
+    - (cf.) 같은 파일에서 named export와 default export를 조합해서 사용하는 것도 가능함
+    - 파일에서 내보내는 대상이 하나만 있을 때 유용하게 사용 가능
+      - default export는 파일마다 하나만 존재 가능
+    - export default ... 구문으로 사용
+    - 가져오는 쪽에서는
+      - 중괄호 없이 해당 파일에서 사용할 이름을 적어줌
+        - (ex.) import Cmp from "./base-component.js"
+      - as 없이 아무 이름을 골라서 사용 가능
+- 모듈의 코드가 실행되는 방식
+  - 예를 들어 project-state.ts에서 다음을 export 함
+    - export const projectState = ProjectState.getInstance();
+  - 그런데 projectState는 project-input.ts, project-list.ts 등 여러 파일에서 import 하고 있음
+    - 그렇다면 해당 코드는 전체 앱에서 한 번만 실행될까? 아니면 import 될 때마다 실행될까?
+  - import된 코드는 다른 파일에 파일이 최초로 import 될 때 한 번만 실행됨
+    - 다른 파일에서 또 import 한다고 해도 다시 실행되진 않음
+    - import 되는 파일에 console.log를 찍어 확인해볼 수 있음
+  - 한 번만 실행되는 방식으로 작동한다는 점을 알아두고 앱을 계획하는 것이 좋음
+
+### 참고 자료
+- https://medium.com/computed-comparisons/commonjs-vs-amd-vs-requirejs-vs-es6-modules-2e814b114a0b
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+
