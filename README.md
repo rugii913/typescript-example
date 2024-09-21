@@ -683,3 +683,34 @@
 - https://medium.com/computed-comparisons/commonjs-vs-amd-vs-requirejs-vs-es6-modules-2e814b114a0b
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
 
+## TypeScript와 함께 Webpack 사용하기(A Modern Build Workflow)
+
+### Webpack의 필요성
+- ES6 모듈만을 이용해 여러 개의 파일로 분할했을 때의 문제점
+  - 그리 용량이 크지 않은 개별 .js 파일을 받아오는데 여러 번 요청을 보내고 있음
+  - 개발자 도구에서 요청, 응답을 확인해봤을 때
+    - Request/Response 부분은 필수적이라고 하더라도
+    - Resource Scheduling, Connection Start로 분류되는 시간이 요청 시마다 매번 추가됨
+      - 브라우저가 요청 자체를 설정하고 전송하는 데에 필요한 시간
+  - 실제로 웹에 배포하면, 많은 요청으로 인해 latency가 길어질 것
+    - 요청의 양을 줄일 수 있는 솔루션이 필요함
+- Webpack의 필요성
+  - Webpack이란?
+    - bundling & build orchestration tool
+  - Webpack으로 할 수 있는 것들
+    - 여러 파일들을 번들링해서 요청의 수를 줄일 수 있음
+    - 빌드 단계에서 빌드 도구를 이용해 CSS 파일 최적화 등 최적화 가능
+  - Webpack를 사용하지 않은 경우와 사용한 경우 비교
+    - 사용하지 않은 경우
+      - 여러 .ts 파일과 import 사용 → 여러 .js 파일로 인한 많은 HTTP 요청
+      - 최적화되지 않은 코드 → 개별 파일 용량 측면에서 불리
+        - 최적화하기 위해 변수, 함수 이름들을 바꿀 수 있지만, 수동으로 작업하기 까다로움
+      - lite server와 같은 외부 개발 서버 구성 필요
+    - 사용한 경우
+      - 파일 번들링으로 요청 수 줄임
+      - 짧은 코드로 최적화해서 다운로드할 파일의 용량 줄임
+      - 빌드 단계 추가 용이\(개발 서버 추가도 쉬움\)
+- Webpack 참고
+  - [공식 사이트](https://webpack.js.org/)
+  - [공식 docs](https://webpack.js.org/concepts/)
+
