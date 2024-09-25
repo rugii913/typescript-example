@@ -6,10 +6,7 @@ import { projectState } from "../state/project-state";
 import { ProjectItem } from "./project-item";
 
 // class ProjectList
-export class ProjectList
-  extends Component<HTMLDivElement, HTMLElement>
-  implements DragTarget
-{
+export class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget {
   // base class를 상속하면서 주석 처리
   // templateElement: HTMLTemplateElement;
   // hostElement: HTMLDivElement;
