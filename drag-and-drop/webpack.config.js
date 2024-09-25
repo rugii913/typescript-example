@@ -9,4 +9,17 @@ module.exports = {
     filename: "bundle.js", // 번들링된 .js 파일
     path: path.resolve(__dirname, "dist"),
   },
+  devtool: "inline-source-map",
+  module: {
+    rules: [
+      {
+        test: /\.ts$/, // .ts로 끝나는 파일에 이 규칙을 적용
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".ts", ".js"],
+  },
 };
