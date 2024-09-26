@@ -1,15 +1,12 @@
-import { DragTarget } from "../models/drag-drop.js";
-import { Project, ProjectStatus } from "../models/project.js";
-import Component from "./base-component.js";
-import { autobind } from "../decorators/autobind.js";
-import { projectState } from "../state/project-state.js";
-import { ProjectItem } from "./project-item.js";
+import { DragTarget } from "../models/drag-drop";
+import { Project, ProjectStatus } from "../models/project";
+import Component from "./base-component";
+import { autobind } from "../decorators/autobind";
+import { projectState } from "../state/project-state";
+import { ProjectItem } from "./project-item";
 
 // class ProjectList
-export class ProjectList
-  extends Component<HTMLDivElement, HTMLElement>
-  implements DragTarget
-{
+export class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget {
   // base class를 상속하면서 주석 처리
   // templateElement: HTMLTemplateElement;
   // hostElement: HTMLDivElement;

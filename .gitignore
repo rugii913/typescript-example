@@ -1,4 +1,6 @@
 *.js
+!webpack.config.js
+!webpack.config.prod.js
 package-lock.json
 node_modules/
 dist/

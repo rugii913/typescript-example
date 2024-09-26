@@ -1,4 +1,4 @@
-import { Project, ProjectStatus } from "../models/project.js";
+import { Project, ProjectStatus } from "../models/project";
 
 // 애플리케이션의 state를 전역으로 관리하기 위한 부분
 // type Listener - 타입 안정성을 위해 타입 추가, 함수인데 특정한 parameter를 받는 함수임을 명시하기 위함
