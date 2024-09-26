@@ -846,3 +846,16 @@
   - webpack.config.js 파일로 Node.js 위에서 동작하므로 ES 모듈을 사용해도 무방할 것으로 보임
   - 하지만 Webpack 공식 문서 예시에서 CommonJS 모듈을 사용하고 있으므로,
     - 혼동을 피하기 위해 특별한 이유가 없다면 일단은 CommonJS 모듈을 사용하는 편이 나을 듯함
+
+## TypeScript와 서드파티 라이브러리
+- 볼 내용
+  - (1) JS로도 사용하는 라이브러리를 TS에서 활용하는 방법
+  - (2) 타입스크립트 전용 라이브러리
+- (cf.) 강의에서 주어진 초기 프로젝트 구성 파일에서 몇 가지 변경해야 실행됨
+  - webpack.config.js
+    - devServer 설정 → 없으면 index.html의 경로가 src가 아님
+    - output의 publicPath: "/dist/"
+    -   module의 rules 배열의 test는 ...tsx...가 아닌 ...ts...로 변경(tsx로도 가능한지는 확인 필요)
+  - package.json의 dependencies에 있는 것들은 모두 devDependencies로 변경함
+  - tsconfig.json의 module, moduleResolution 등 변경
+
