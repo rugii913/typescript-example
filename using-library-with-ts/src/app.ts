@@ -1,4 +1,6 @@
+import { plainToInstance } from "class-transformer";
 import _ from "lodash";
+import "reflect-metadata";
 import { Product } from "./product.model";
 
 declare const GLOBAL_VARIABLE: string;
@@ -19,9 +21,10 @@ const products = [
   { title: "A Book", price: 10.99 },
 ];
 
-const loadedProducts = products.map(product => {
+/* const loadedProducts = products.map(product => {
   return new Product(product.title, product.price);
-})
+}) */
+const loadedProducts = plainToInstance(Product, products);
 
 for (const product of loadedProducts) {
   console.log(product.getInformation());
