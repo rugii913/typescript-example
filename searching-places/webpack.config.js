@@ -1,4 +1,8 @@
 const path = require("path");
+const dotenv = require("dotenv");
+const { DefinePlugin } = require("webpack");
+
+dotenv.config();
 
 module.exports = {
   mode: "development",
@@ -27,4 +31,9 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".js"],
   },
+  plugins: [
+    new DefinePlugin({
+      "process.env.GOOGLE_API_KEY": JSON.stringify(process.env.GOOGLE_API_KEY),
+    }),
+  ],
 };
