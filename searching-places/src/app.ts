@@ -36,8 +36,6 @@ const apiKey = process.env.GOOGLE_API_KEY;
         a.onerror = () => (h = n(Error(p + " could not load.")));
         // a.nonce = m.querySelector("script[nonce]")?.nonce || ""; // 이쪽 코드에 문제가 있어서 아래와 같이 임시 조치
         a.nonce = "";
-        console.log(a)
-        console.log(m);
         m.head.append(a);
       }));
   d[l]
@@ -56,6 +54,7 @@ async function initMap(domElementForMap: HTMLElement, startCoodinates: { lat: nu
   return new Map(domElementForMap, {
     center: startCoodinates,
     zoom: 16,
+    mapId: "DEMO_MAP_ID", // advanced marker를 사용하기 위해 필요
   });
 }
 
@@ -80,9 +79,11 @@ const searchAddressHandler = async (event: Event) => {
       const coordinates = response.data.results[0].geometry.location;
 
       const domElementForMap = document.getElementById("map")!
-      await initMap(domElementForMap, coordinates);
+      const map = await initMap(domElementForMap, coordinates);
 
       // new google.maps.Marker({ position: coordinates, map: map }) // @types/google.maps에서는 사용할 수 없어 주석 처리
+      const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+      new AdvancedMarkerElement({ position: coordinates, map: map });
     }).catch((err: Error) => {
       alert(err.message);
       console.log(err);
