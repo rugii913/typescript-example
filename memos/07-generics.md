@@ -1,0 +1,15 @@
+## generics
+- [공식 문서 handbook](https://www.typescriptlang.org/docs/handbook/2/generics.html)
+  - JS에는 없고 TS에만 존재
+    - compile 이후에는 존재 x, compile 단계에서 유연성과 type 안정성 제공
+  - 자세한 설명은 코드로 대체 generics.ts
+- cf. JavaScript의 Promise - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+- generic function
+- constraint
+- keyof constraint
+  - parameter의 값이 다른 type의 property의 이름이라는 것을 확실히 하도록 generic을 사용
+  - 존재하지 않는 property에 접근하는 것을 방지함
+- generic class
+- [utility type](https://www.typescriptlang.org/docs/handbook/utility-types.html)
+  - Partial type, Readonly 등 일부 상황에서 유용하게 사용할 수 있을 generic을 이용한 built-in type들
+- generic type vs. union type 헷갈리지 말기

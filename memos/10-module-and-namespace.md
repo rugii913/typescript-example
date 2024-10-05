@@ -1,0 +1,129 @@
+## 모듈 및 네임스페이스
+- modular code를 작성해서 코드를 여러 개의 파일로 분할하여 관리
+  - 각 파일은 브라우저 혹은 서드파티 빌드 도구를 이용해 TS로 연결됨
+- 여러 파일로 코드를 구성할 때의 방법들
+  - (방법 1) 여러 개의 .ts 파일 작성
+    - 소스 디렉토리의 모든 코드 파일을 컴파일하고, 컴파일된 각각의 .js 파일을 HTML로 가져옴
+    - (단점) 규모가 큰 프로젝트에서는 매우 불리함
+      - 모든 import를 수동으로 관리해야함 → 관리, 유지보수 시 오류 발생 가능성 높음
+      - 특정 TS 기능 타입을 사용할 때 타입 지원도 불가능
+        - a 파일에서 정의한 타입을 b 파일에서 사용해도 TS가 이 연결에 대해 알 수 없음
+  - (방법 2) namespace & file bundling
+    - namespace syntax 활용
+      - 특수한 코드를 추가
+      - namespace 아래에 코드를 그룹으로 묶고 종속성 있는 다른 파일 import
+    - per-file or bundled compilation
+      - tsconfig.json 설정을 통해 여러 파일을 하나의 파일로 bundling 하기 편리
+    - ES6 모듈을 사용한 경우와 비교했을 때
+      - 타입 안정성이 떨어지고
+      - 파일 간 종속성을 명확하게 처리할 수 없음
+  - (방법 3) ES6의 import/export (ES6 모듈)
+    - TS와는 별개로 모던 JS에서 제공하는 솔루션 → 대규모 프로젝트에서는 JS에서도 같은 문제를 겪기 때문
+    - ES6의 import/export syntax 사용
+      - 여러 파일 사이의 종속성을 명시
+      - 모던 브라우저가 이를 이해하고 종속된 파일을 자동으로 받아서 실행
+    - 기본적으로 per-file compilation이며, HTML에서 \< script \> 를 이용해 적어도 하나의 파일은 가져와야 함
+      - 종속성을 갖는 파일을 개별 요청으로 받아오기 때문에 HTTP 요청이 늘어난다는 단점
+    - HTTP 요청을 줄이기 위해 Webpack 등 도구를 이용해 bundling 하는 경우도 많음
+
+### namespace & file bundling
+- namespace는 JS의 기능이 아닌 TS 기능
+  - 대응되는 기능이 없으므로 JS로 컴파일 되지 않음
+  - namespace를 구성하고 property가 보존되는 객체로 컴파일
+- export와 import
+  - export 키워드를 이용해 다른 파일에서도 사용할 수 있게 함
+  - 다른 파일에서 import는 다음과 같은 형식의 특수 구문을 이용
+    - /// < reference path="사용할 ts 파일명" />
+  - 하지만 단순히 export와 import만으로는 불가능
+    - 참조하려는 코드들이 동일한 namespace 안에 있어야 함
+- file bundling
+  - 코드들을 동일한 namespace에 두고, export와 import를 위한 특수 구문을 적절히 사용했다고 하더라도 여전히 문제는 남아있음
+    - 위 과정은 type을 어디서 찾을지 TSC에 알려준 것일 뿐임
+    - JS로 컴파일이 완료되면 연결이 끊어짐
+  - tsconfig.json 파일에서 outFile을 명시
+    - 참조한 내용을 컴파일할 때 여러 개의 JS 파일이 아니라 단일 JS 파일로 컴파일하도록 함
+    - 이 때 여러 작업 파일을 하나로 번들링 처리하기 위해
+      - tsconfig.json의 module을 commonjs가 아닌 amd로 설정
+      - 이 부분은 역사적인 이유 혹은 개발 과정으로 인해 생긴 이슈, 자세한 내용은 다음의 강의 참고 자료 확인
+        - [Medium - CommonJS vs AMD vs RequireJS vs ES6 Modules](https://medium.com/computed-comparisons/commonjs-vs-amd-vs-requirejs-vs-es6-modules-2e814b114a0b)
+  - **TS 컴파일 안 되는 문제 관련**
+    - 이 때 tsc 명령어로 TS 컴파일이 안 되는 문제 발생함, 오류 메시지는 아래와 같음
+      - Cannot find module 'undici-types'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+    - 이를 해결하기 위해 다음과 같은 글들을 참고했으나 해결되지 않음
+      - https://www.inflearn.com/community/questions/1073374/tsc-%EB%AA%85%EB%A0%B9%EC%96%B4%EB%A5%BC-%EC%8B%A4%ED%96%89%ED%95%98%EB%A9%B4-cannot-find-module-undici-type-%EC%9D%B4%EB%9D%BC%EB%8A%94-%EC%98%A4%EB%A5%98%EA%B0%80-%EB%9C%B9%EB%8B%88%EB%8B%A4?srsltid=AfmBOorQp4HlpT4KEASJBpY7NfQ0xjKq0aVwuWMG4b2sKWAPmYDja58g
+      - https://www.inflearn.com/community/questions/1053604/%EC%84%A4%EC%B9%98-%EC%98%A4%EB%A5%98-%ED%95%B4%EA%B2%B0%EC%B1%85%EC%9D%84-%EB%AA%A8%EB%A5%B4%EA%B2%A0%EC%8A%B5%EB%8B%88%EB%8B%A4-%EC%84%A4%EC%B9%98%EA%B4%80%EB%A0%A8-undici-types?focusComment=292567
+      - https://github.com/pop-os/shell/issues/1664#issue-1954078073
+      - https://velog.io/@jihwan1211/VSCode-Typescript-버전-변경하기
+    - 문제의 원인으로 @types/node, undici 등을 의심했고 global 라이브러리를 변경해보았으나 해결되지 않았음
+    - 결론적으로 오류 메시지에서 보여주는 해결책과 유사하게 tsconfig.json에서 다음을 추가하여 해결함
+      - "moduleResolution": "node"
+      - 값을 "nodenext"로 주어도 동작하는지, 이것이 무엇을 의미하는지에 대해서는 확인이 필요함
+    - 문제가 발생하는 정확한 원인은 확인하지 못했음
+      - undici 라이브러리의 문제인지?
+      - 새로 출시된 typescript 5.7.0과 VSCode의 문제인지?
+    - 이 외에도 node 버전과 npm 버전을 최신화하였는데, 이것이 문제 해결에 영향을 끼쳤는지에 대해서는 조사하지 않았음
+      - node 버전은 20에서 22로 변경, npm은 10.8.2 사용
+- **TS의 namespace를 이용한 방법의 단점**
+  - 각 파일의 종속성을 모두 수동으로 추가해줘야 함
+    - 즉 해당 파일에서 필요로 하는 다른 파일을 직접 reference로 명시해야 함
+  - 그런데 문제는 reference를 명시하지 않아도 컴파일되는 경우가 있다는 것
+    - 예를 들어 B 파일에서 A 파일을 reference로 가져오고 있고, C 파일에서 A 파일을 필요로 하지만 reference로 명시하지 않은 경우
+    - 하나의 파일로 번들링하게 되면 문제 없이 컴파일되며 잘 동작함
+  - 동작하더라도 왜 동작하는지, 동작하지 않으면 왜 동작하지 않는지 혼란스러운 상황이 발생할 수 있음
+
+### ES6 모듈을 활용한 import, export
+- 구문
+  - 가져올 대상에서 export 명시(TS namespace 관련 구문이 아니라 ES6 모듈 관련 구문, 예약어는 같음)
+  - import { 가져올 대상 } from "파일 경로(.js로 명시)"
+  - 이 때 tsconfig.json에서 module이 AMD 등 다른 것으로 되어있다면 모듈을 도입한 ECMAScript 버전인 es2015(혹은 es6)로 바꿔줘야 함
+    - TSC에게 import를 바꾸지 말고 그대로 두도록 함
+  - 그리고 outFile이 명시되어 있다면 삭제하거나 주석 처리
+    - 하나의 파일로 번들링되지 않도록 한 것
+    - 번들링되면 순수 JS에서는 이해할 수 없는 구문이 됨
+  - JS 파일을 가져오는 HTML 파일에서는 모듈임을 명시(type="module")
+    - 모던 브라우저는 ES6 모듈을 지원하지만, 모듈을 사용한다고 명시해줘야 함
+    - 명시하지 않는 경우 다음 오류 발생
+      - Uncaught SyntaxError: Cannot use import statement outside a module
+  - (cf.) Webpack과 같은 빌드 도구를 사용한다면, import 시 .js 확장자를 생략할 수 있지만, 
+    - 브라우저에 의지해서 파일을 import 할 때는 .js 확장자를 명시해줘야 함
+- 장점
+  - 파일마다 필요한 것을 명시하기에 편리
+  - 명시가 잘못된 경우 tsc에서 경고를 보냄
+  - 타입 안정성도 강화됨
+  - 되도록 namespace보다는 ES 모듈을 사용하고
+    - 구형 브라우저를 사용할 수밖에 없는 경우, ES 모듈이나 번들러 등을 사용할 수 없는 경우에만 TS의 namespace를 사용할 것을 권장
+- 단점
+  - 개발자 도구 네트워크 탭을 보면 요청이 많음을 확인 가능
+    - HTML \< script \>로 불러온 첫 JS 파일을 가져오면서 import가 명시된 모든 파일들을 가져오는 것
+- 추가로 알아두면 좋을 import, export 관련 구문
+  - import bundling
+    - import { \[가져올 대상\] } ... 대신 import * as \[사용할 이름\] from "\[가져올 파일\]"; 구문을 사용
+    - 사용할 때는 \[사용할 이름\].\[가져올 대상\] 방식으로 사용
+    - 이렇게 import 대상을 그룹화할 수 있음
+      - 이름 충돌을 방지할 때도 유용할 수 있음
+  - alias
+    - 위 import bundling에서 사용한 as는 가져올 대상에게도 직접 사용할 수 있음
+    - (ex.) import { autobind as Autobind } from ...
+    - 이름 충돌을 방지할 수 있음
+  - default export(↔ named export)
+    - (cf.) 같은 파일에서 named export와 default export를 조합해서 사용하는 것도 가능함
+    - 파일에서 내보내는 대상이 하나만 있을 때 유용하게 사용 가능
+      - default export는 파일마다 하나만 존재 가능
+    - export default ... 구문으로 사용
+    - 가져오는 쪽에서는
+      - 중괄호 없이 해당 파일에서 사용할 이름을 적어줌
+        - (ex.) import Cmp from "./base-component.js"
+      - as 없이 아무 이름을 골라서 사용 가능
+- 모듈의 코드가 실행되는 방식
+  - 예를 들어 project-state.ts에서 다음을 export 함
+    - export const projectState = ProjectState.getInstance();
+  - 그런데 projectState는 project-input.ts, project-list.ts 등 여러 파일에서 import 하고 있음
+    - 그렇다면 해당 코드는 전체 앱에서 한 번만 실행될까? 아니면 import 될 때마다 실행될까?
+  - import된 코드는 다른 파일에 파일이 최초로 import 될 때 한 번만 실행됨
+    - 다른 파일에서 또 import 한다고 해도 다시 실행되진 않음
+    - import 되는 파일에 console.log를 찍어 확인해볼 수 있음
+  - 한 번만 실행되는 방식으로 작동한다는 점을 알아두고 앱을 계획하는 것이 좋음
+
+### 참고 자료
+- https://medium.com/computed-comparisons/commonjs-vs-amd-vs-requirejs-vs-es6-modules-2e814b114a0b
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
