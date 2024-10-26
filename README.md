@@ -136,5 +136,7 @@
   - TypeScript를 사용하는 프로젝트에서 Google 지도로 지도 렌더링하기
 
 ## React.js 및 TypeScript
-
-### React + TypeScript 프로젝트 설정하기
+- [React.js 및 TypeScript 메모](memos/14-react-with-typescript.md)
+  - React + TypeScript 프로젝트 설정하기
+  - React와 TypeScript가 함께 작동하는 방식
+  - TypeScript로 type과 함께 props 사용법, ref 사용법, 상태 관리 방법
